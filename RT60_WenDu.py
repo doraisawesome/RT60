@@ -8,7 +8,7 @@
 # Instructor: Gary Bourgeois
 
 
-def outputMenu(options):
+def getUserChoice(options):
     '''
     Generates a numbered menu with given options and returns user's choice
 
@@ -27,7 +27,7 @@ def outputMenu(options):
     print("Please choose one option from the menu: ")
     for item in options:
         print(options.index(item) + 1, ". ", item, sep='')
-    userChoice = input("-> ")
+    userChoice = int(input("-> "))
     return userChoice
 
 
@@ -102,7 +102,7 @@ def RT60():
     '''
     materials = [["Brick Wall (unpainted)", "Brick Wall (painted)", "Interior Plaster", "Poured Concrete", "Carpeting"], [0.02, 0.01, 0.02, 0.01, 0.1]]
 
-    choice = int(outputMenu(mainMenuOptions))
+    choice = getUserChoice(mainMenuOptions)
 
     ''' check if user chooses to start or quit '''
     toQuit = mainMenuOptions[choice - 1] == mainMenuOptions[1]
@@ -122,7 +122,7 @@ def RT60():
                 coefficient from user's choice '''
             print("What material is this room made out of?")
             materialOptions = materials[0]
-            materialChoice = int(outputMenu(materialOptions))
+            materialChoice = getUserChoice(materialOptions)
             materialChoiceCoeff = materials[1][materialChoice - 1]
 
             ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
@@ -133,7 +133,9 @@ def RT60():
 
         print("-------------------")
         print("Want to start a new calculation? ")
-        choice = outputMenu(mainMenuOptions)
+        choice = getUserChoice(mainMenuOptions)
+        toQuit = mainMenuOptions[choice - 1] == mainMenuOptions[1]
+        toStart = mainMenuOptions[choice - 1] == mainMenuOptions[0]
     print("Bye :)")
 
 RT60()
