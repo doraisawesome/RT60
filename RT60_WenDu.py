@@ -7,6 +7,11 @@
 # Class: SD93 Scripting
 # Instructor: Gary Bourgeois
 
+# A 2D list with: first row a list of material options and second row a list of absorption coefficient in respect to each material
+materials = [["Brick Wall (unpainted)", "Brick Wall (painted)", "Interior Plaster", "Poured Concrete", "Carpeting"], [0.02, 0.01, 0.02, 0.01, 0.1]]
+startCalc = "Start Calculation"
+quitCalc = "Quit"
+mainMenuOptions = [startCalc, quitCalc]
 
 def getUserChoice(options):
     '''
@@ -21,13 +26,11 @@ def getUserChoice(options):
     -------
     int
         User's choice from printed menu
-
-    '''
-    print()
+    '''    
     print("Please choose one option from the menu: ")
     for item in options:
         print(options.index(item) + 1, ". ", item, sep='')
-    userChoice = int(input("-> "))
+    userChoice = int(input("-> "))    
     return userChoice
 
 
@@ -81,7 +84,7 @@ def takeRoomMeasurements():
     for item in demensionsToMeasure:
         question = "What is the " + item + " of this room in meters? "
         answer = float(input(question))
-        while answer < 0:
+        while answer <= 0:
             print("Oops! Not a valid measurement.")
             print("Try again.")
             answer = float(input(question))
@@ -94,47 +97,40 @@ def RT60():
     print("Welcome to RT60 Version 1.0")
     print("---------------------------")
 
-    mainMenuOptions = ["Start Calculation", "Quit"]
-
-    '''
-    A 2D list with: first row a list of material options and
-    second row a list of absorption coefficient in respect to each material
-    '''
-    materials = [["Brick Wall (unpainted)", "Brick Wall (painted)", "Interior Plaster", "Poured Concrete", "Carpeting"], [0.02, 0.01, 0.02, 0.01, 0.1]]
-
     choice = getUserChoice(mainMenuOptions)
+    while choice - 1 not in range(len(mainMenuOptions)):
+        print("Oops! What you typed is not an option from the menu.")
+        choice = getUserChoice(mainMenuOptions)
 
     ''' check if user chooses to start or quit '''
-    toQuit = mainMenuOptions[choice - 1] == mainMenuOptions[1]
-    toStart = mainMenuOptions[choice - 1] == mainMenuOptions[0]
+    toStart = choice == mainMenuOptions.index(startCalc) + 1
 
-    while not toQuit:
-        if toStart:
-            ''' get room measurements and calculates room volume and room surface area for later use'''
-            measurements = takeRoomMeasurements()
-            height = measurements[0]
-            width = measurements[1]
-            length = measurements[2]
-            roomVolume = calculateVolume(height, width, length)
-            roomSurfaceArea = calculateSurfaceArea(height, width, length)
+    while toStart:
+        ''' get room measurements and calculates room volume and room surface area for later use'''
+        measurements = takeRoomMeasurements()
+        print()
+        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        height = measurements[0]
+        width = measurements[1]
+        length = measurements[2]
+        roomVolume = calculateVolume(height, width, length)
+        roomSurfaceArea = calculateSurfaceArea(height, width, length)
 
-            ''' Display a menu of available materials to user then get corresponding 
-                coefficient from user's choice '''
-            print("What material is this room made out of?")
-            materialOptions = materials[0]
-            materialChoice = getUserChoice(materialOptions)
-            materialChoiceCoeff = materials[1][materialChoice - 1]
+        ''' Display a menu of available materials to user then get corresponding 
+            coefficient from user's choice '''
+        print("What material is this room made out of?")
+        materialOptions = materials[0]
+        materialChoice = getUserChoice(materialOptions)
+        materialChoiceCoeff = materials[1][materialChoice - 1]
 
-            ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
-            decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, materialChoiceCoeff)
-            print("Reverberation decay time of this room is:", decayTime, 'sec')
-        else:
-            print("Oops! What you typed is not an option from the menu, plese try again.")
-
-        print("-------------------")
+        ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
+        decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, materialChoiceCoeff)
+        print()
+        print("Reverberation decay time of this room is:", decayTime, 'sec')
+        print("---------------------------------")
         print("Want to start a new calculation? ")
+
         choice = getUserChoice(mainMenuOptions)
-        toQuit = mainMenuOptions[choice - 1] == mainMenuOptions[1]
         toStart = mainMenuOptions[choice - 1] == mainMenuOptions[0]
     print("Bye :)")
 
