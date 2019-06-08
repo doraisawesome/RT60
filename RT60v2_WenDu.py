@@ -7,12 +7,27 @@
 # Class: SD93 Scripting
 # Instructor: Gary Bourgeois
 
-# A 2D list with: first row a list of material options and second row a list of absorption coefficient in respect to each material
-materials = [["Brick Wall (unpainted)", "Brick Wall (painted)", "Interior Plaster", "Poured Concrete", "Carpeting"], [0.02, 0.01, 0.02, 0.01, 0.1]]
-startCalc = "Start Calculation"
-quitCalc = "Quit"
-mainMenuOptions = [startCalc, quitCalc]
+import random
 
+materials = {
+    "Brick Wall (unpainted)": 0.02, 
+    "Brick Wall (painted)": 0.01,
+    "Interior Plaster": 0.02,
+    "Poured Concrete": 0.01,
+    "Carpeting": 0.1
+}
+createRoom = "Create a new room"
+addMaterial = "Add a new material"
+loadRooms = "Show RT60 of saved rooms"
+saveData = "Save"
+quitCalc = "Quit"
+mainMenuOptions = [createRoom, addMaterial, loadRooms, saveData, quitCalc]
+randomDimentions = "Randomize room dimentions(height, width, length)"
+inputDimentions = "Type in room dimentions manually"
+createRoomOptions = [randomDimentions, inputDimentions]
+
+rooms = {}
+    
 def getUserChoice(options):
     '''
     Generates a numbered menu with given options and returns a valid user choice
@@ -38,6 +53,47 @@ def getUserChoice(options):
         userChoice = int(input("-> "))  
     return userChoice
 
+def createNewRoom():
+    choice = getUserChoice(createRoomOptions)
+    if createRoomOptions[choice - 1] == randomDimentions:
+        measurements = randomizeDimentions()
+    else:
+        measurements = takeRoomMeasurements()
+    print("How would you like to name this room?")
+    roomName = input("-> ")
+
+    # print()
+    # print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    height = measurements[0]
+    width = measurements[1]
+    length = measurements[2]
+    roomVolume = calculateVolume(height, width, length)
+    roomSurfaceArea = calculateSurfaceArea(height, width, length)
+
+    ''' Display a menu of available materials to user then get corresponding 
+        coefficient from user's choice '''
+    print("What material is this room made out of?")
+    materialOptions = list(materials.keys())
+    materialCoefficients = list(materials.values())
+    materialChoice = getUserChoice(materialOptions)
+    materialChoiceCoeff = materialCoefficients[materialChoice - 1]
+
+    ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
+    decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, materialChoiceCoeff)
+    print()
+    print("Reverberation decay time of this room is:", decayTime, 'sec')
+    print("-----------------------------------------")
+    print()
+    measurements.append(materialChoiceCoeff)
+    rooms.update({roomName: measurements})
+
+def randomizeDimentions():
+    return [random.uniform(1, 20), random.uniform(1, 20), random.uniform(1, 20)]
+
+def addNewMaterial():
+    materialName = input("Name of the material you would like to add: ")
+    materialCoeff = float(input("Absoption coefficient of this material is: "))
+    materials.update({materialName: float(materialCoeff)})
 
 def calculateVolume(height, width, length):
     volume = height * width * length
@@ -107,38 +163,47 @@ def RT60():
     print()
     
     ''' check if user chooses to start or quit '''
-    toStart = choice == mainMenuOptions.index(startCalc) + 1
+    toStart = choice in range(1, 5)
 
     while toStart:
-        ''' get room measurements and calculates room volume and room surface area for later use'''
-        measurements = takeRoomMeasurements()
-        print()
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        height = measurements[0]
-        width = measurements[1]
-        length = measurements[2]
-        roomVolume = calculateVolume(height, width, length)
-        roomSurfaceArea = calculateSurfaceArea(height, width, length)
+        option =  mainMenuOptions[choice - 1]
+        if option == createRoom:
+            createNewRoom()
+        elif option == addMaterial:
+            addNewMaterial()
+        elif option == loadRooms:
+            print("load room and print with format")
+        elif option == saveData:
+            print("save data")
+        # ''' get room measurements and calculates room volume and room surface area for later use'''
+        # measurements = takeRoomMeasurements()
+        # print()
+        # print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        # height = measurements[0]
+        # width = measurements[1]
+        # length = measurements[2]
+        # roomVolume = calculateVolume(height, width, length)
+        # roomSurfaceArea = calculateSurfaceArea(height, width, length)
 
-        ''' Display a menu of available materials to user then get corresponding 
-            coefficient from user's choice '''
-        print("What material is this room made out of?")
-        materialOptions = materials[0]
-        materialChoice = getUserChoice(materialOptions)
-        materialChoiceCoeff = materials[1][materialChoice - 1]
+        # ''' Display a menu of available materials to user then get corresponding 
+        #     coefficient from user's choice '''
+        # print("What material is this room made out of?")
+        # materialOptions = materials[0]
+        # materialChoice = getUserChoice(materialOptions)
+        # materialChoiceCoeff = materials[1][materialChoice - 1]
 
-        ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
-        decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, materialChoiceCoeff)
-        print()
-        print("Reverberation decay time of this room is:", decayTime, 'sec')
-        print("-----------------------------------------")
-        print()
+        # ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
+        # decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, materialChoiceCoeff)
+        # print()
+        # print("Reverberation decay time of this room is:", decayTime, 'sec')
+        # print("-----------------------------------------")
+        # print()
         print("-----------------------------------------")
         print("What would you like to do next? ")
 
         choice = getUserChoice(mainMenuOptions)
         print()
-        toStart = mainMenuOptions[choice - 1] == mainMenuOptions[0]
+        toStart = choice in range(1, 5)
     print("Bye :)")
 
 RT60()
