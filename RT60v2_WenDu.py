@@ -16,6 +16,8 @@ materials = {
     "Poured Concrete": 0.01,
     "Carpeting": 0.1
 }
+materialsFileName = "AC.txt"
+
 createRoom = "Create a new room"
 addMaterial = "Add a new material"
 loadRooms = "Show RT60 of saved rooms"
@@ -27,7 +29,7 @@ inputDimentions = "Type in room dimentions manually"
 createRoomOptions = [randomDimentions, inputDimentions]
 
 rooms = {}
-    
+roomDataFileName = "RoomMeasurement.txt"    
 def getUserChoice(options):
     '''
     Generates a numbered menu with given options and returns a valid user choice
@@ -152,6 +154,40 @@ def takeRoomMeasurements():
         measurements.append(answer)
     return measurements
 
+def loadRoomData():
+    in_file = open(roomDataFileName, "rt")
+    while True:
+        in_line = in_file.readline()
+        if not in_line:
+            break
+        in_line = in_line[:-1]
+        name, measurements = in_line.split(",")
+        materialAC = measurements[3]
+        decayTime = calculateRT60(measurements, materialAC)
+        print("Decay time of ", name, " is ", decayTime)
+    in_file.close()
+
+def saveRoomMeasurements():
+    out_file = open(roomDataFileName, "wt")
+    # for k, v in rooms.items():
+    #     out_file.write(k + "," + str(v) + "\n")
+    out_file.write(str(rooms))
+    out_file.close()
+
+def saveAC():
+    out_file = open(materialsFileName, "wt")
+    out_file.write(str(materials))
+    out_file.close()
+
+def calculateRT60(measurements, AC):
+    height = measurements[0]
+    width = measurements[1]
+    length = measurements[2]
+    # materialAC = measurements[3]
+    roomVolume = calculateVolume(height, width, length)
+    roomSurfaceArea = calculateSurfaceArea(height, width, length)
+    decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, AC)
+    return decayTime
 
 def RT60():
     print("---------------------------")
@@ -172,32 +208,11 @@ def RT60():
         elif option == addMaterial:
             addNewMaterial()
         elif option == loadRooms:
-            print("load room and print with format")
+            loadRoomData()
         elif option == saveData:
-            print("save data")
-        # ''' get room measurements and calculates room volume and room surface area for later use'''
-        # measurements = takeRoomMeasurements()
-        # print()
-        # print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        # height = measurements[0]
-        # width = measurements[1]
-        # length = measurements[2]
-        # roomVolume = calculateVolume(height, width, length)
-        # roomSurfaceArea = calculateSurfaceArea(height, width, length)
-
-        # ''' Display a menu of available materials to user then get corresponding 
-        #     coefficient from user's choice '''
-        # print("What material is this room made out of?")
-        # materialOptions = materials[0]
-        # materialChoice = getUserChoice(materialOptions)
-        # materialChoiceCoeff = materials[1][materialChoice - 1]
-
-        # ''' Calculate the time that it takes for the acoustical energy to drop by 60dB '''
-        # decayTime = calculateDecayTime(roomVolume, roomSurfaceArea, materialChoiceCoeff)
-        # print()
-        # print("Reverberation decay time of this room is:", decayTime, 'sec')
-        # print("-----------------------------------------")
-        # print()
+            saveRoomMeasurements()
+            saveAC()
+            print("Data Saved!")
         print("-----------------------------------------")
         print("What would you like to do next? ")
 
