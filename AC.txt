@@ -1,0 +1,5 @@
+Brick Wall (unpainted):0.02
+Brick Wall (painted):0.01
+Interior Plaster:0.02
+Poured Concrete:0.01
+Carpeting:0.1
